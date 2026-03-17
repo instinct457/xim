@@ -1,10 +1,8 @@
-/* config.def.h - Default configuration for xim */
-
 /* * Rule structure:
- * 1. timeout:   Inactivity time in seconds before triggering the command.
- * 2. on_timeout: Command to execute when the timeout is reached.
- * 3. on_resume:  Command to execute when user activity resumes (can be NULL).
- * 4. active:     Internal state flag. ALWAYS leave this as 0.
+ * 1. timeout		Inactivity time in seconds before triggering the command.
+ * 2. on_timeout	Command to execute when the timeout is reached.
+ * 3. on_resume		Command to execute when user activity resumes (can be NULL).
+ * 4. active		Internal state flag. ALWAYS leave this as 0.
  */
 typedef struct {
     int timeout;
@@ -13,9 +11,7 @@ typedef struct {
     int active;
 } Rule;
 
-/* * Define your idle rules here. 
- * The rules will be evaluated concurrently by XSync alarms.
- */
+/* Define your idle rules here. The rules will be evaluated concurrently by XSync alarms. */
 static Rule rules[] = {
     /* Timeout,	Command on timeout,		Command on resume,		State */
 
