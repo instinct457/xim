@@ -4,10 +4,13 @@ VERSION = 0.1
 # paths
 PREFIX = /usr/local
 
-# flags (qui inseriamo le librerie X11 e Xext che usavamo da riga di comando)
-CPPFLAGS = -DVERSION=\"${VERSION}\" -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L
+# flags
+DBUS_CFLAGS = $(shell pkg-config --cflags dbus-1)
+DBUS_LIBS   = $(shell pkg-config --libs dbus-1)
+
+CPPFLAGS = -DVERSION=\"${VERSION}\" -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L ${DBUS_CFLAGS}
 CFLAGS   = -std=c99 -pedantic -Wall -Os ${CPPFLAGS}
-LDFLAGS  = -lX11 -lXext
+LDFLAGS  = -lX11 -lXext ${DBUS_LIBS}
 
 # compiler and linker
 CC = cc
