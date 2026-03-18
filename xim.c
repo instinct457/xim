@@ -7,6 +7,7 @@
 #include <poll.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/sync.h>
+#include <X11/extensions/dpms.h>
 #include <dbus/dbus.h>
 
 #include "config.h"
@@ -92,6 +93,15 @@ main()
     if (!XSyncQueryExtension(dpy, &sync_event_base, &sync_error_base)) {
     	fprintf(stderr, "[ERR]: XSync extension is not supported.\n");
     	return 1;
+    }
+
+    XSetScreenSaver(dpy, 0, 0, DefaultBlanking, DefaultExposures);
+
+    /* make sure dpms is active, but disable all the timers */
+    int dpms_dummy;
+    if (DPMSQueryExtension(dpy, &dpms_dummy, &dpms_dummy)) {
+        DPMSEnable(dpy);
+        DPMSSetTimeouts(dpy, 0, 0, 0);
     }
 
     counters = XSyncListSystemCounters(dpy, &ncounters);
