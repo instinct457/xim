@@ -17,7 +17,7 @@ int active_inhibitors = 0;
 int cookie_counter = 0;
 
 void
-spawn(const char *cmd) 
+spawn(const char *cmd)
 {
     if (fork() == 0) {
         if (dpy) close(ConnectionNumber(dpy));
@@ -28,17 +28,17 @@ spawn(const char *cmd)
     }
 }
 
-void 
-handle_dbus_messages(DBusConnection *conn) 
+void
+handle_dbus_messages(DBusConnection *conn)
 {
     dbus_connection_read_write(conn, 0);
     DBusMessage *msg;
-    
+
     while ((msg = dbus_connection_pop_message(conn)) != NULL) {
         if (dbus_message_is_method_call(msg, "org.freedesktop.ScreenSaver", "Inhibit")) {
             active_inhibitors++;
             cookie_counter++;
-            
+
             /* we have to reply with a cookie */
             DBusMessage *reply = dbus_message_new_method_return(msg);
             if (reply) {
@@ -46,10 +46,10 @@ handle_dbus_messages(DBusConnection *conn)
                 dbus_connection_send(conn, reply, NULL);
                 dbus_message_unref(reply);
             }
-        } 
+        }
         else if (dbus_message_is_method_call(msg, "org.freedesktop.ScreenSaver", "UnInhibit")) {
             if (active_inhibitors > 0) active_inhibitors--;
-            
+
             DBusMessage *reply = dbus_message_new_method_return(msg);
             if (reply) {
                 dbus_connection_send(conn, reply, NULL);
@@ -60,13 +60,13 @@ handle_dbus_messages(DBusConnection *conn)
     }
 }
 
-int 
-main() 
+int
+main()
 {
     int sync_event_base, sync_error_base, ncounters;
     XSyncSystemCounter *counters;
     XSyncCounter idle_counter = None;
-    
+
     int num_rules = sizeof(rules) / sizeof(rules[0]);
     XSyncAlarm rule_alarms[num_rules];
     XSyncAlarm reset_alarm;
@@ -89,7 +89,7 @@ main()
     	fprintf(stderr, "[ERR]: Could not connect to X11.\n");
     	return 1;
     }
-    
+
     if (!XSyncQueryExtension(dpy, &sync_event_base, &sync_error_base)) {
     	fprintf(stderr, "[ERR]: XSync extension is not supported.\n");
     	return 1;
@@ -110,7 +110,7 @@ main()
             idle_counter = counters[i].counter; break;
         }
     }
-    
+
     XSyncFreeSystemCounterList(counters);
     if (idle_counter == None) {
     	fprintf(stderr, "[ERR]: Could not find IDLETIME counter.\n");
@@ -123,8 +123,8 @@ main()
     attr.events = True;
     XSyncIntToValue(&attr.delta, 0);
 
-    unsigned long alarm_mask = XSyncCACounter | XSyncCAValueType | 
-                               XSyncCAValue | XSyncCATestType | 
+    unsigned long alarm_mask = XSyncCACounter | XSyncCAValueType |
+                               XSyncCAValue | XSyncCATestType |
                                XSyncCADelta | XSyncCAEvents;
 
     XSyncIntToValue(&attr.trigger.wait_value, 1);
@@ -156,7 +156,7 @@ main()
         while (XPending(dpy)) {
             XEvent ev;
             XNextEvent(dpy, &ev);
-            
+
             if (ev.type == sync_event_base + XSyncAlarmNotify) {
                 XSyncAlarmNotifyEvent *alarm_ev = (XSyncAlarmNotifyEvent *)&ev;
 
@@ -172,7 +172,7 @@ main()
                     }
                     XSyncIntToValue(&attr.trigger.wait_value, 1);
                     XSyncChangeAlarm(dpy, reset_alarm, XSyncCAValue, &attr);
-                } 
+                }
                 else {
                     for (int i = 0; i < num_rules; i++) {
                         if (alarm_ev->alarm == rule_alarms[i] && !rules[i].active) {
@@ -181,7 +181,7 @@ main()
                                 XSyncValue counter_val;
                                 XSyncQueryCounter(dpy, idle_counter, &counter_val);
                                 int current_idle = XSyncValueLow32(counter_val) / 1000;
-                                
+
                                 XSyncIntsToValue(&attr.trigger.wait_value, (current_idle + 20) * 1000, 0);
                                 XSyncChangeAlarm(dpy, rule_alarms[i], XSyncCAValue, &attr);
                                 continue;
