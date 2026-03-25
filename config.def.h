@@ -14,13 +14,13 @@ typedef struct {
 /* Define your idle rules here. The rules will be evaluated concurrently by XSync alarms. */
 static Rule rules[] = {
     /* Timeout,   Command on timeout,         Command on resume,        State */
-    
+
     /* Turn off the monitor after 3 minutes (180 seconds) of inactivity */
     { 180,        "xset dpms force off",      "xset dpms force on",     0 },
-    
+
     /* Lock the screen with 'slock' after 5 minutes (300 seconds) */
     { 300,        "slock",                    NULL,                     0 },
-    
+
     /* Suspend the system after 10 minutes (600 seconds) */
     { 600,        "systemctl suspend",        NULL,                     0 },
 };
